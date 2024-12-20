@@ -1,10 +1,9 @@
-import java.sql.*;
+package ERP;
 import java.util.Scanner;
+import Database.myJDBC;
+import java.sql.*;
 
-public class LogIn {
-    Connection conn;
-
-
+public class Log_In {
     myJDBC jdbc = new myJDBC();
     Scanner input = new Scanner(System.in);
 
@@ -15,23 +14,21 @@ public class LogIn {
         System.out.println("Enter the Password: ");
         String pass = input.next();
 
-
         try {
-            conn = jdbc.connectionSQL();
+            jdbc.connectionSQL();
             String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-            PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, username);
-            statement.setString(2, pass);
+            ResultSet resultSet = jdbc.executePreparedQuery(query, username, pass);
 
-            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
+                // If a match is found, get the role and department
                 String role = resultSet.getString("role");
-                String department = resultSet.getString("department");
-                Directory d = new Directory(username, role, department);
+
+                // You can now use these values (for example, creating a Directory object)
+                Directory d = new Directory(username, role);
             } else {
                 System.out.println("Invalid username or password. Please try again.");
-                login();
+                login(); // Call login again if the credentials are incorrect
             }
         } catch (SQLException e) {
             e.printStackTrace();
