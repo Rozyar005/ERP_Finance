@@ -10,7 +10,6 @@ public interface CEOPermissions  extends GeneralPermission {
         void viewProfit();
         void addProduct();
         void removeProduct();
-        void viewProductsTransaction();
 
 }
 

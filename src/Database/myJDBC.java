@@ -3,14 +3,12 @@ package Database;
 import java.sql.*;
 
 public class myJDBC {
-    // JDBC Connection details
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/erp";
     private static final String USER = "root";
     private static final String PASSWORD = "@Rozyar2005";
 
     public static Connection connection = null;
 
-    // Establish SQL Connection
     public static Connection connectionSQL() {
         try {
 
@@ -23,7 +21,6 @@ public class myJDBC {
         return connection;
     }
 
-    // Execute SELECT queries (returns ResultSet)
     public static ResultSet executeQuery(String query) {
         ResultSet resultSet = null;
         try {
@@ -35,7 +32,6 @@ public class myJDBC {
         return resultSet;
     }
 
-    // Execute INSERT, UPDATE, DELETE queries (returns affected rows)
     public static int executeUpdate(String query) {
         int rowsAffected = 0;
         try {
@@ -47,7 +43,6 @@ public class myJDBC {
         return rowsAffected;
     }
 
-    // Execute SELECT queries using PreparedStatement (returns ResultSet)
     public static ResultSet executePreparedQuery(String query, Object... params) {
         ResultSet resultSet = null;
         try {
@@ -65,7 +60,6 @@ public class myJDBC {
         return resultSet;
     }
 
-    // Execute queries using PreparedStatement
     public static int executePreparedUpdate(String sql, Object... params) {
         int rowsAffected = 0;
         try {

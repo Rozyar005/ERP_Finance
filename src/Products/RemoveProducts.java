@@ -3,7 +3,7 @@ package Products;
 import Database.myJDBC;
 import java.sql.*;
 import java.sql.PreparedStatement;
-
+import java.util.Scanner;
 public class RemoveProducts extends viewProducts {
 
     @Override
@@ -15,63 +15,71 @@ public class RemoveProducts extends viewProducts {
     }
 
     public void RemoveP(int product_id, int userId) {
-
-        // Variables for product data
+        Scanner input = new Scanner(System.in);
+        int quantity;
         String productName = "";
-        double productAmount = 0.0;
+        double amount = 0.0;
         String department = "";
+        int availableQuantity = 0;
 
-        // Prepare SQL query to get the product details before deletion
-        String selectQuery = "SELECT product_name, amount, department FROM products WHERE product_id = ?";
+        String selectQuery = "SELECT product_name, product_quantity, amount, department FROM products WHERE product_id = ?";
 
         try {
-            // Prepare and execute the select query
+            myJDBC.connection.setAutoCommit(false);
+
             PreparedStatement selectStmt = myJDBC.connection.prepareStatement(selectQuery);
             selectStmt.setInt(1, product_id);
             ResultSet resultSet = selectStmt.executeQuery();
 
-            // If product exists, get the product details
             if (resultSet.next()) {
                 productName = resultSet.getString("product_name");
-                productAmount = resultSet.getDouble("amount");
+                amount = resultSet.getDouble("amount");
+                availableQuantity = resultSet.getInt("product_quantity");
                 department = resultSet.getString("department");
-            }
+                System.out.println("Enter the quantity you want to remove: ");
+                quantity = input.nextInt();
 
-            // Now, remove the product from the database
-            String deleteQuery = "DELETE FROM products WHERE product_id = ?";
-            int rowsAffected = myJDBC.executePreparedUpdate(deleteQuery, product_id);
+                while (quantity > availableQuantity) {
+                    System.out.println("Enter a valid quantity: ");
+                    quantity = input.nextInt();
+                }
 
-            // Display success or failure message based on rows affected
-            if (rowsAffected > 0) {
-                System.out.println("Product removed successfully!");
+                if (quantity <= availableQuantity) {
+                    int updatedQuantity = availableQuantity - quantity;
+                    String updateQuery = "UPDATE products SET product_quantity = ? WHERE product_id = ?";
+                    int rowsAffected = myJDBC.executePreparedUpdate(updateQuery, updatedQuantity, product_id);
 
-                // Get the department ID based on the product's department
-                int deptId = getDeptId(department);
+                    if (rowsAffected > 0) {
+                        double totalAmount = amount * quantity;
+                        java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
+                        String expenseQuery = "INSERT INTO revenue (user_id, amount, department, date) VALUES (?, ?, ?, ?)";
+                        PreparedStatement expenseStatement = myJDBC.connection.prepareStatement(expenseQuery);
+                        expenseStatement.setInt(1, userId); // Set user_id
+                        expenseStatement.setDouble(2, totalAmount);  // Set dept_id (Warehouse)
+                        expenseStatement.setString(3, department); // Set the amount (price of the product)
+                        expenseStatement.setDate(4, currentDate); // Set the current date
 
-                // Insert the transaction into the revenue table
-                String insertRevenueQuery = "INSERT INTO revenue (user_id, amount, dept_id, date) VALUES (?, ?, ?, NOW())";
+                        int revenueRowsAffected = expenseStatement.executeUpdate();
+                        if (revenueRowsAffected > 0) {
+                            System.out.println("Expense record added successfully!");
 
-                // Insert into revenue table
-                int revenueRowsAffected = myJDBC.executePreparedUpdate(insertRevenueQuery, userId, productAmount, deptId);
-
-                if (revenueRowsAffected > 0) {
-                    System.out.println("Revenue recorded successfully!");
-                } else {
-                    System.out.println("Failed to record revenue.");
+                        } else {
+                            System.out.println("Failed to add expense record.");
+                        }
+                    }
                 }
 
             } else {
-                System.out.println("Failed to remove product. Product ID not found.");
+                System.out.println("Product ID not found.");
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("An error occurred while removing the product or recording the revenue.");
         }
-//transactiony mawa
-    }
+                catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 
-    // Method to get the department ID based on the department associated with the product
+
+
     private int getDeptId(String department) {
         int deptId = 0;
         try {

@@ -6,38 +6,6 @@ import Database.myJDBC;
 public class Expenses extends management{
 
     @Override
-    public void view(){
-
-                String query = "SELECT * FROM expenses";
-
-                try {
-                    // Execute the query
-                    ResultSet resultSet = myJDBC.executePreparedQuery(query);
-
-                    // Display the results
-                    System.out.println("Expenses Table Data:");
-                    System.out.println("-----------------------------------------------------------");
-                    System.out.printf("%-10s %-20s %-15s %-15s%n", "Expense ID", "Description", "Amount", "Date");
-
-                    while (resultSet.next()) {
-                        int expenseId = resultSet.getInt("expense_id");
-                        String description = resultSet.getString("description");
-                        double amount = resultSet.getDouble("amount");
-                        String date = resultSet.getString("date");
-
-                        // Display each row of the result
-                        System.out.printf("%-10d %-20s %-15.2f %-15s%n", expenseId, description, amount, date);
-                    }
-
-                    System.out.println("-----------------------------------------------------------");
-
-                } catch (SQLException e) {
-                    System.err.println("Error retrieving expenses: " + e.getMessage());
-                }
-
-               }
-
-    @Override
     public void cal() {
         String query = "SELECT SUM(amount) AS total_expenses FROM expenses";
 
@@ -58,5 +26,64 @@ public class Expenses extends management{
             System.err.println("Error calculating total expenses: " + e.getMessage());
         }
     }
+
+    @Override
+    public void view(){
+
+        String query = "SELECT * FROM expenses";
+
+        try {
+            ResultSet resultSet = myJDBC.executePreparedQuery(query);
+
+            System.out.println("Expenses Table Data:");
+            System.out.println("-----------------------------------------------------------");
+            System.out.printf("%-10s %-20s %-15s %-15s %-15s%n", "ExpenseID", "UserID", "Department", "Amount", "Date");
+
+            while (resultSet.next()) {
+                int expenseId = resultSet.getInt("expense_id");
+                int userId = resultSet.getInt("user_id"); // Changed to `int` to match ID type
+                String department = resultSet.getString("department");
+                double amount = resultSet.getDouble("amount");
+                Date date = resultSet.getDate("date");
+                System.out.printf("%-10d %-20d %-15s %-15.2f %-15s%n", expenseId, userId, department, amount, date);
+            }
+
+            System.out.println("-----------------------------------------------------------");
+
+        } catch (SQLException e) {
+            System.err.println("Error retrieving expenses: " + e.getMessage());
+        }
+
+    }
+
+    public void viewWarehouse(){
+        String query = "SELECT * FROM expenses WHERE department='warehouse'";
+
+        try {
+            ResultSet resultSet = myJDBC.executePreparedQuery(query);
+
+            System.out.println("Expenses Table Data:");
+            System.out.println("-----------------------------------------------------------");
+            System.out.printf("%-10s %-20s %-15s %-15s %-15s%n", "ExpenseID", "UserID", "Department", "Amount", "Date");
+
+            while (resultSet.next()) {
+                int expenseId = resultSet.getInt("expense_id");
+                int userId = resultSet.getInt("user_id"); // Changed to `int` to match ID type
+                String department = resultSet.getString("department");
+                double amount = resultSet.getDouble("amount");
+                Date date = resultSet.getDate("date");
+                System.out.printf("%-10d %-20d %-15s %-15.2f %-15s%n", expenseId, userId, department, amount, date);
+            }
+
+            System.out.println("-----------------------------------------------------------");
+
+        } catch (SQLException e) {
+            System.err.println("Error retrieving expenses: " + e.getMessage());
+        }
+
+    }
+
+
+
 
 }

@@ -12,6 +12,7 @@ public class AddUsers {
         if (rowsAffected > 0) {
             System.out.println("User added successfully!");
 
+
         } else {
             System.out.println("Failed to add user.");
         }

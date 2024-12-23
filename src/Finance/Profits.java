@@ -14,6 +14,8 @@ public class Profits extends management{
 
     @Override
     public void view() {
+        System.out.println("The Profit Before 30% Tax is: "+Profits+" $");
         System.out.println("The Total Profits Of the Business is: "+Total_P+" $");
+        System.out.println();
     }
 }
